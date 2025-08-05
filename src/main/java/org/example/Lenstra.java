@@ -21,7 +21,6 @@ public class Lenstra {
 
     public int factorizeNumber(int number) {
         int limit = (int) Math.exp(Math.sqrt(2 * log(number) * log(log(number))));
-
         int qtyOfCurves = 0;
         int a = 3;
         int b = 5;
@@ -40,40 +39,43 @@ public class Lenstra {
                 for (; j <= p; j *= 2) {
                     int dy = a * (int) Math.pow(x, 2) + b;
                     int dx = 2 * y;
-                    int s;
-                    if (dy % dx == 0) {
-                        s = mod(dy / dx, number);
-                    } else {
-                        int gcd = gcd(dx, number);
-                        if (gcd > 1) {
-                            return gcd;
+                    if (dx != 0) {
+                        int s;
+                        if (dy % dx == 0) {
+                            s = mod(dy / dx, number);
+                        } else {
+                            int gcd = gcd(dx, number);
+                            if (gcd > 1) {
+                                return gcd;
+                            }
+                            s = mod(dy * gcdExtended(dx, number)[1], number);
                         }
-                        s = mod(dy * gcdExtended(dx, number)[1], number);
+                        x2 = mod((int) Math.pow(s, 2) - 2 * x, number);
+                        y2 = mod(s * (x - x2) - y, number);
+                        x = x2;
+                        y = y2;
                     }
-                    x2 = mod((int) Math.pow(s, 2) - 2 * x, number);
-                    y2 = mod(s * (x - x2) - y, number);
-                    x = x2;
-                    y = y2;
                 }
                 if (2 * p != j) {
                     int dy = y2 - y1;
                     int dx = x2 - x1;
-
-                    int s;
-                    if (dy % dx == 0) {
-                        s = mod(dy / dx, number);
-                    } else {
-                        int gcd = gcd(dx, number);
-                        if (gcd > 1) {
-                            return gcd;
+                    if (dx != 0) {
+                        int s;
+                        if (dy % dx == 0) {
+                            s = mod(dy / dx, number);
+                        } else {
+                            int gcd = gcd(dx, number);
+                            if (gcd > 1) {
+                                return gcd;
+                            }
+                            s = mod(dy * gcdExtended(dx, number)[1], number);
                         }
-                        s = mod(dy * gcdExtended(dx, number)[1], number);
-                    }
 
-                    x2 = mod((int) Math.pow(s, 2) - x1 - x2, number);
-                    y2 = mod(s * (x1 - x2) - y1, number);
-                    x = x2;
-                    y = y2;
+                        x2 = mod((int) Math.pow(s, 2) - x1 - x2, number);
+                        y2 = mod(s * (x1 - x2) - y1, number);
+                        x = x2;
+                        y = y2;
+                    }
                 }
                 i++;
             } while (p < limit);
