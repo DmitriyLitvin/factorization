@@ -5,11 +5,11 @@ import java.util.stream.Stream;
 
 import static java.lang.Math.*;
 
-public class Main {
+public class NumberFieldSieve {
 
     public static void main(String[] args) {
-        Main main = new Main();
-        System.out.println(main.factorizeNumber(576));
+        NumberFieldSieve numberFieldSieve = new NumberFieldSieve();
+        System.out.println(numberFieldSieve.factorizeNumber(1573344559));
     }
 
     public int mod(int number, int mod) {
@@ -29,8 +29,8 @@ public class Main {
         int m = (int) Math.floor(sqrt(number));
         int limit = 5 * (int) Math.pow(log(number), 2);
 
-        List<Integer> primeNumbers = getPrimeNumbers(limit).stream().sorted().toList();
         List<Integer> smoothNumbers = new ArrayList<>();
+        List<Integer> primeNumbers = getPrimeNumbers(limit).stream().sorted().toList();
         for (Integer primeNumber : primeNumbers) {
             for (int i = 1; i <= primeNumber; i++) {
                 if (mod(f(i, m, number), primeNumber) == 0) {
@@ -39,8 +39,9 @@ public class Main {
                 }
             }
         }
-        List<List<Integer>> exponents = new LinkedList<>();
+
         List<Pair> pairs = new LinkedList<>();
+        List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int r = j - i * m;
@@ -51,6 +52,7 @@ public class Main {
                 }
             }
         }
+
         if (!pairs.isEmpty() && !exponents.isEmpty()) {
             List<List<Pair>> rows = getLinearDependentRows(pairs, exponents);
             for (List<Pair> row : rows) {
@@ -67,6 +69,7 @@ public class Main {
 
         throw new RuntimeException(number + " can't be factorized");
     }
+    
 
     public int gcd(int a, int b) {
         if (b == 0) {
