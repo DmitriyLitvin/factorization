@@ -1,5 +1,7 @@
 package org.example;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -42,23 +44,23 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Pair> pairs = new LinkedList<>();
+        List<Pair<Integer, Integer>> indexes = new LinkedList<>();
         List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int r = j - i * m;
                 int a = getA(j, i, m, number);
                 if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
-                    pairs.add(new Pair(j, i));
+                    indexes.add(Pair.of(j, i));
                     exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
 
-        if (!pairs.isEmpty() && !exponents.isEmpty()) {
-            for (List<Pair> row : getLinearDependentRows(pairs, exponents)) {
-                int x = row.stream().map(p -> p.getA() - p.getB() * m).reduce((a, b) -> a * b).orElse(0);
-                int y = row.stream().map(p -> getA(p.getA(), p.getB(), m, number)).reduce((a, b) -> a * b).orElse(0);
+        if (!indexes.isEmpty() && !exponents.isEmpty()) {
+            for (List<Pair<Integer, Integer>> row : getLinearDependentRows(indexes, exponents)) {
+                int x = row.stream().map(p -> p.getKey() - p.getValue() * m).reduce((a, b) -> a * b).orElse(0);
+                int y = row.stream().map(p -> getA(p.getKey(), p.getValue(), m, number)).reduce((a, b) -> a * b).orElse(0);
                 if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
                     int gcd = gcd(Math.abs(x - y), number);
                     if (gcd != 1 && gcd != number) {
@@ -79,12 +81,12 @@ public class NumberFieldSieve {
         return gcd(b, a % b);
     }
 
-    public List<List<Pair>> getLinearDependentRows(List<Pair> pairs, List<List<Integer>> exponents) {
-        List<List<Pair>> factors = new ArrayList<>();
+    public List<List<Pair<Integer, Integer>>> getLinearDependentRows(List<Pair<Integer, Integer>> indexes, List<List<Integer>> exponents) {
+        List<List<Pair<Integer, Integer>>> matrixOfIndices = new ArrayList<>();
         int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
-            factors.add(new ArrayList<>(List.of(pairs.get(row))));
+            matrixOfIndices.add(new ArrayList<>(List.of(indexes.get(row))));
             row++;
         }
 
@@ -99,8 +101,8 @@ public class NumberFieldSieve {
                 }
                 if (mainElement != 0) {
                     exchangeRows(exponents, i, l - 1);
-                    exchangeRows(factors, i, l - 1);
-                    exchangePairs(pairs, i, l - 1);
+                    exchangeRows(matrixOfIndices, i, l - 1);
+                    exchange(indexes, i, l - 1);
                 }
             }
             if (mainElement != 0) {
@@ -109,13 +111,13 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
                         }
-                        factors.get(j).add(pairs.get(i));
+                        matrixOfIndices.get(j).add(indexes.get(i));
                     }
                 }
             }
         }
 
-        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(factors::get).toList();
+        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(matrixOfIndices::get).toList();
     }
 
     public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
@@ -126,11 +128,11 @@ public class NumberFieldSieve {
 
     }
 
-    public void exchangePairs(List<Pair> pairs, int i, int j) {
+    public <T> void exchange(List<T> e, int i, int j) {
         if (i == j) return;
-        Pair pair = pairs.get(i);
-        pairs.set(i, pairs.get(j));
-        pairs.set(j, pair);
+        T pair = e.get(i);
+        e.set(i, e.get(j));
+        e.set(j, pair);
     }
 
     public boolean isFactorized(int number, List<Integer> smoothNumbers) {
