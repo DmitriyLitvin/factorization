@@ -120,11 +120,11 @@ public class NumberFieldSieve {
         return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(matrixOfIndices::get).toList();
     }
 
-    public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
+    public <T> void exchangeRows(List<List<T>> m, int i, int j) {
         if (i == j) return;
-        List<T> row = matrix.get(i);
-        matrix.set(i, matrix.get(j));
-        matrix.set(j, row);
+        List<T> row = m.get(i);
+        m.set(i, m.get(j));
+        m.set(j, row);
 
     }
 
