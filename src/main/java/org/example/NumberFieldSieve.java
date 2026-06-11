@@ -44,21 +44,21 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Pair<Integer, Integer>> indexes = new LinkedList<>();
+        List<Pair<Integer, Integer>> indices = new LinkedList<>();
         List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int r = j - i * m;
                 int a = getA(j, i, m, number);
                 if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
-                    indexes.add(Pair.of(j, i));
+                    indices.add(Pair.of(j, i));
                     exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
 
-        if (!indexes.isEmpty() && !exponents.isEmpty()) {
-            for (List<Pair<Integer, Integer>> row : getLinearDependentRows(indexes, exponents)) {
+        if (!indices.isEmpty() && !exponents.isEmpty()) {
+            for (List<Pair<Integer, Integer>> row : getLinearDependentRows(indices, exponents)) {
                 int x = row.stream().map(p -> p.getKey() - p.getValue() * m).reduce((a, b) -> a * b).orElse(0);
                 int y = row.stream().map(p -> getA(p.getKey(), p.getValue(), m, number)).reduce((a, b) -> a * b).orElse(0);
                 if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
@@ -81,12 +81,12 @@ public class NumberFieldSieve {
         return gcd(b, a % b);
     }
 
-    public List<List<Pair<Integer, Integer>>> getLinearDependentRows(List<Pair<Integer, Integer>> indexes, List<List<Integer>> exponents) {
+    public List<List<Pair<Integer, Integer>>> getLinearDependentRows(List<Pair<Integer, Integer>> indices, List<List<Integer>> exponents) {
         List<List<Pair<Integer, Integer>>> matrixOfIndices = new ArrayList<>();
         int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
-            matrixOfIndices.add(new ArrayList<>(List.of(indexes.get(row))));
+            matrixOfIndices.add(new ArrayList<>(List.of(indices.get(row))));
             row++;
         }
 
@@ -102,7 +102,7 @@ public class NumberFieldSieve {
                 if (mainElement != 0) {
                     exchangeRows(exponents, i, l - 1);
                     exchangeRows(matrixOfIndices, i, l - 1);
-                    exchange(indexes, i, l - 1);
+                    exchange(indices, i, l - 1);
                 }
             }
             if (mainElement != 0) {
@@ -111,7 +111,7 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
                         }
-                        matrixOfIndices.get(j).add(indexes.get(i));
+                        matrixOfIndices.get(j).add(indices.get(i));
                     }
                 }
             }
