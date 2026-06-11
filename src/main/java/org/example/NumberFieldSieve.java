@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.Math.*;
@@ -9,7 +10,8 @@ public class NumberFieldSieve {
 
     public static void main(String[] args) {
         NumberFieldSieve numberFieldSieve = new NumberFieldSieve();
-        System.out.println(numberFieldSieve.factorizeNumber(1573344559));
+        System.out.println(numberFieldSieve.factorize(126));
+        System.out.println(numberFieldSieve.factorize(1573344559));
     }
 
     public int mod(int number, int mod) {
@@ -25,7 +27,7 @@ public class NumberFieldSieve {
         return (int) Math.pow(a, 2) + 2 * m * a * b + (int) Math.pow(b, 2) * ((int) Math.pow(m, 2) - number);
     }
 
-    public int factorizeNumber(int number) {
+    public int factorize(int number) {
         int m = (int) Math.floor(sqrt(number));
         int limit = 5 * (int) Math.pow(log(number), 2);
 
@@ -48,18 +50,17 @@ public class NumberFieldSieve {
                 int a = getA(j, i, m, number);
                 if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
                     pairs.add(new Pair(j, i));
-                    exponents.add(new ArrayList<>(Stream.concat(getExponentsOfSmoothNumbers(r, smoothNumbers).stream().map(n -> n % 2), getExponentsOfSmoothNumbers(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
+                    exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
 
         if (!pairs.isEmpty() && !exponents.isEmpty()) {
-            List<List<Pair>> rows = getLinearDependentRows(pairs, exponents);
-            for (List<Pair> row : rows) {
-                int X = row.stream().map(p -> p.getA() - p.getB() * m).reduce((x, y) -> x * y).orElse(0);
-                int Y = row.stream().map(p -> getA(p.getA(), p.getB(), m, number)).reduce((x, y) -> x * y).orElse(0);
-                if (Math.sqrt(Y) == Math.floor(Math.sqrt(Y))) {
-                    int gcd = gcd(Math.abs(X - Y), number);
+            for (List<Pair> row : getLinearDependentRows(pairs, exponents)) {
+                int x = row.stream().map(p -> p.getA() - p.getB() * m).reduce((a, b) -> a * b).orElse(0);
+                int y = row.stream().map(p -> getA(p.getA(), p.getB(), m, number)).reduce((a, b) -> a * b).orElse(0);
+                if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
+                    int gcd = gcd(Math.abs(x - y), number);
                     if (gcd != 1 && gcd != number) {
                         return gcd;
                     }
@@ -69,7 +70,6 @@ public class NumberFieldSieve {
 
         throw new RuntimeException(number + " can't be factorized");
     }
-    
 
     public int gcd(int a, int b) {
         if (b == 0) {
@@ -80,11 +80,11 @@ public class NumberFieldSieve {
     }
 
     public List<List<Pair>> getLinearDependentRows(List<Pair> pairs, List<List<Integer>> exponents) {
-        List<List<Pair>> linearOperations = new ArrayList<>();
+        List<List<Pair>> factors = new ArrayList<>();
         int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
-            linearOperations.add(new ArrayList<>(List.of(pairs.get(row))));
+            factors.add(new ArrayList<>(List.of(pairs.get(row))));
             row++;
         }
 
@@ -99,7 +99,7 @@ public class NumberFieldSieve {
                 }
                 if (mainElement != 0) {
                     exchangeRows(exponents, i, l - 1);
-                    exchangeRows(linearOperations, i, l - 1);
+                    exchangeRows(factors, i, l - 1);
                     exchangePairs(pairs, i, l - 1);
                 }
             }
@@ -109,27 +109,20 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
                         }
-                        linearOperations.get(j).add(pairs.get(i));
+                        factors.get(j).add(pairs.get(i));
                     }
                 }
             }
         }
 
-        List<List<Pair>> linearDependentRows = new ArrayList<>();
-        for (int i = 0; i < exponents.size(); i++) {
-            if (exponents.get(i).stream().allMatch(r -> r == 0)) {
-                linearDependentRows.add(linearOperations.get(i));
-            }
-        }
-
-        return linearDependentRows;
+        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(factors::get).toList();
     }
 
-    public <T> void exchangeRows(List<List<T>> exponentMatrix, int i, int j) {
+    public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
         if (i == j) return;
-        List<T> exponents = exponentMatrix.get(i);
-        exponentMatrix.set(i, exponentMatrix.get(j));
-        exponentMatrix.set(j, exponents);
+        List<T> row = matrix.get(i);
+        matrix.set(i, matrix.get(j));
+        matrix.set(j, row);
 
     }
 
@@ -158,7 +151,7 @@ public class NumberFieldSieve {
         return false;
     }
 
-    public List<Integer> getExponentsOfSmoothNumbers(int number, List<Integer> smoothNumbers) {
+    public List<Integer> getExponents(int number, List<Integer> smoothNumbers) {
         List<Integer> exponents = new LinkedList<>();
         int currentNumber = Math.abs(number);
 

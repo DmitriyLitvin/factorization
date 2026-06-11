@@ -7,7 +7,7 @@ public class Lenstra {
 
     public static void main(String[] args) {
         Lenstra lenstra = new Lenstra();
-        System.out.println(lenstra.factorizeNumber(1573344559));
+        System.out.println(lenstra.factorizeNumber(1773344559));
     }
 
     public int getFactorial(int n) {
