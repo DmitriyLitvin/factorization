@@ -130,9 +130,9 @@ public class NumberFieldSieve {
 
     public <T> void exchange(List<T> row, int i, int j) {
         if (i == j) return;
-        T pair = row.get(i);
+        T e = row.get(i);
         row.set(i, row.get(j));
-        row.set(j, pair);
+        row.set(j, e);
     }
 
     public boolean isFactorized(int number, List<Integer> smoothNumbers) {
