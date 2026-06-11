@@ -120,19 +120,19 @@ public class NumberFieldSieve {
         return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(matrixOfIndices::get).toList();
     }
 
-    public <T> void exchangeRows(List<List<T>> m, int i, int j) {
+    public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
         if (i == j) return;
-        List<T> row = m.get(i);
-        m.set(i, m.get(j));
-        m.set(j, row);
+        List<T> row = matrix.get(i);
+        matrix.set(i, matrix.get(j));
+        matrix.set(j, row);
 
     }
 
-    public <T> void exchange(List<T> e, int i, int j) {
+    public <T> void exchange(List<T> row, int i, int j) {
         if (i == j) return;
-        T pair = e.get(i);
-        e.set(i, e.get(j));
-        e.set(j, pair);
+        T pair = row.get(i);
+        row.set(i, row.get(j));
+        row.set(j, pair);
     }
 
     public boolean isFactorized(int number, List<Integer> smoothNumbers) {
