@@ -1,7 +1,5 @@
 package org.example;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -44,23 +42,23 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Pair<Integer, Integer>> indices = new LinkedList<>();
+        List<Pair> indices = new LinkedList<>();
         List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int r = j - i * m;
                 int a = getA(j, i, m, number);
                 if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
-                    indices.add(Pair.of(j, i));
+                    indices.add(new Pair(j, i));
                     exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
 
         if (!indices.isEmpty() && !exponents.isEmpty()) {
-            for (List<Pair<Integer, Integer>> row : getLinearDependentRows(indices, exponents)) {
-                int x = row.stream().map(p -> p.getKey() - p.getValue() * m).reduce((a, b) -> a * b).orElse(0);
-                int y = row.stream().map(p -> getA(p.getKey(), p.getValue(), m, number)).reduce((a, b) -> a * b).orElse(0);
+            for (List<Pair> row : getLinearDependentRows(indices, exponents)) {
+                int x = row.stream().map(p -> p.x() - p.y() * m).reduce((a, b) -> a * b).orElse(0);
+                int y = row.stream().map(p -> getA(p.x(), p.y(), m, number)).reduce((a, b) -> a * b).orElse(0);
                 if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
                     int gcd = gcd(Math.abs(x - y), number);
                     if (gcd != 1 && gcd != number) {
@@ -81,8 +79,8 @@ public class NumberFieldSieve {
         return gcd(b, a % b);
     }
 
-    public List<List<Pair<Integer, Integer>>> getLinearDependentRows(List<Pair<Integer, Integer>> indices, List<List<Integer>> exponents) {
-        List<List<Pair<Integer, Integer>>> matrixOfIndices = new ArrayList<>();
+    public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponents) {
+        List<List<Pair>> matrixOfIndices = new ArrayList<>();
         int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
