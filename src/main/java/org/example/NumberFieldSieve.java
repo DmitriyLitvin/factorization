@@ -23,7 +23,7 @@ public class NumberFieldSieve {
     }
 
 
-    public int getA(int a, int b, int m, int number) {
+    public int q(int a, int b, int m, int number) {
         return (int) Math.pow(a, 2) + 2 * m * a * b + (int) Math.pow(b, 2) * ((int) Math.pow(m, 2) - number);
     }
 
@@ -46,11 +46,11 @@ public class NumberFieldSieve {
         List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
-                int r = j - i * m;
-                int a = getA(j, i, m, number);
-                if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
+                int x = j - i * m;
+                int y = q(j, i, m, number);
+                if (isFactorized(x, smoothNumbers) && isFactorized(y, smoothNumbers)) {
                     indices.add(new Pair(j, i));
-                    exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
+                    exponents.add(new ArrayList<>(Stream.concat(getExponents(x, smoothNumbers).stream().map(n -> n % 2), getExponents(y, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
@@ -58,7 +58,7 @@ public class NumberFieldSieve {
         if (!indices.isEmpty() && !exponents.isEmpty()) {
             for (List<Pair> row : getLinearDependentRows(indices, exponents)) {
                 int x = row.stream().map(p -> p.x() - p.y() * m).reduce((a, b) -> a * b).orElse(0);
-                int y = row.stream().map(p -> getA(p.x(), p.y(), m, number)).reduce((a, b) -> a * b).orElse(0);
+                int y = row.stream().map(p -> q(p.x(), p.y(), m, number)).reduce((a, b) -> a * b).orElse(0);
                 if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
                     int gcd = gcd(Math.abs(x - y), number);
                     if (gcd != 1 && gcd != number) {
