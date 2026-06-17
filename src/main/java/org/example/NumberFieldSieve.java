@@ -80,11 +80,11 @@ public class NumberFieldSieve {
     }
 
     public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponents) {
-        List<List<Pair>> matrixOfIndices = new ArrayList<>();
+        List<List<Pair>> dependentRowIndices = new ArrayList<>();
         int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
-            matrixOfIndices.add(new ArrayList<>(List.of(indices.get(row))));
+            dependentRowIndices.add(new ArrayList<>(List.of(indices.get(row))));
             row++;
         }
 
@@ -99,7 +99,7 @@ public class NumberFieldSieve {
                 }
                 if (mainElement != 0) {
                     exchangeRows(exponents, i, l - 1);
-                    exchangeRows(matrixOfIndices, i, l - 1);
+                    exchangeRows(dependentRowIndices, i, l - 1);
                     exchange(indices, i, l - 1);
                 }
             }
@@ -109,13 +109,13 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
                         }
-                        matrixOfIndices.get(j).add(indices.get(i));
+                        dependentRowIndices.get(j).add(indices.get(i));
                     }
                 }
             }
         }
 
-        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(matrixOfIndices::get).toList();
+        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(dependentRowIndices::get).toList();
     }
 
     public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
