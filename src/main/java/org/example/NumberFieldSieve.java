@@ -46,11 +46,11 @@ public class NumberFieldSieve {
         List<List<Integer>> exponents = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
-                int x = j - i * m;
-                int y = q(j, i, m, number);
-                if (isFactorized(x, smoothNumbers) && isFactorized(y, smoothNumbers)) {
+                int r = j - i * m;
+                int a = q(j, i, m, number);
+                if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
                     indices.add(new Pair(j, i));
-                    exponents.add(new ArrayList<>(Stream.concat(getExponents(x, smoothNumbers).stream().map(n -> n % 2), getExponents(y, smoothNumbers).stream().map(n -> n % 2)).toList()));
+                    exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
                 }
             }
         }
