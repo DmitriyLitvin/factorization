@@ -65,28 +65,28 @@ public class NumberFieldSieve {
 
         if (!indices.isEmpty() && !exponentRows.isEmpty()) {
             for (var row : getLinearDependentRows(indices, exponentRows)) {
-                int x = 1;
+                int baseProduct = 1;
                 if (row.isEmpty()) {
-                    x = 0;
+                    baseProduct = 0;
                 } else {
-                    for (Pair p : row) {
-                        int value = p.x() - p.y() * m;
-                        x *= value;
+                    for (Pair pair : row) {
+                        int value = pair.x() - pair.y() * m;
+                        baseProduct *= value;
                     }
                 }
 
-                int y = 1;
+                int sieveProduct = 1;
                 if (row.isEmpty()) {
-                    y = 0;
+                    sieveProduct = 0;
                 } else {
-                    for (Pair p : row) {
-                        int value = q(p.x(), p.y(), m, number);
-                        y *= value;
+                    for (Pair pair : row) {
+                        int value = q(pair.x(), pair.y(), m, number);
+                        sieveProduct *= value;
                     }
                 }
 
-                if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
-                    int gcd = gcd(Math.abs(x - y), number);
+                if (Math.sqrt(sieveProduct) == Math.floor(Math.sqrt(sieveProduct))) {
+                    int gcd = gcd(Math.abs(baseProduct - sieveProduct), number);
                     if (gcd != 1 && gcd != number) {
                         return gcd;
                     }
