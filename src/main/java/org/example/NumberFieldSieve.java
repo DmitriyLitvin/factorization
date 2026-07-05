@@ -97,12 +97,12 @@ public class NumberFieldSieve {
         throw new RuntimeException(number + " can't be factorized");
     }
 
-    public int gcd(int a, int b) {
-        if (b == 0) {
-            return a;
+    public int gcd(int dividend, int divisor) {
+        if (divisor == 0) {
+            return dividend;
         }
 
-        return gcd(b, a % b);
+        return gcd(divisor, dividend % divisor);
     }
 
     public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponents) {
