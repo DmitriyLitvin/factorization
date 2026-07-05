@@ -43,22 +43,48 @@ public class NumberFieldSieve {
         }
 
         List<Pair> indices = new LinkedList<>();
-        List<List<Integer>> exponents = new LinkedList<>();
+        List<List<Integer>> exponentRows = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
-                int r = j - i * m;
-                int a = q(j, i, m, number);
-                if (isFactorized(r, smoothNumbers) && isFactorized(a, smoothNumbers)) {
+                int residue = j - i * m;
+                int polyValue = q(j, i, m, number);
+                if (isFactorized(residue, smoothNumbers) && isFactorized(polyValue, smoothNumbers)) {
                     indices.add(new Pair(j, i));
-                    exponents.add(new ArrayList<>(Stream.concat(getExponents(r, smoothNumbers).stream().map(n -> n % 2), getExponents(a, smoothNumbers).stream().map(n -> n % 2)).toList()));
+
+                    List<Integer> exponentRow = new ArrayList<>();
+                    for (Integer exponent : getExponents(residue, smoothNumbers)) {
+                        exponentRow.add(exponent % 2);
+                    }
+                    for (Integer exponent : getExponents(polyValue, smoothNumbers)) {
+                        exponentRow.add(exponent % 2);
+                    }
+                    exponentRows.add(exponentRow);
                 }
             }
         }
 
-        if (!indices.isEmpty() && !exponents.isEmpty()) {
-            for (List<Pair> row : getLinearDependentRows(indices, exponents)) {
-                int x = row.stream().map(p -> p.x() - p.y() * m).reduce((a, b) -> a * b).orElse(0);
-                int y = row.stream().map(p -> q(p.x(), p.y(), m, number)).reduce((a, b) -> a * b).orElse(0);
+        if (!indices.isEmpty() && !exponentRows.isEmpty()) {
+            for (var row : getLinearDependentRows(indices, exponentRows)) {
+                int x = 1;
+                if (row.isEmpty()) {
+                    x = 0;
+                } else {
+                    for (Pair p : row) {
+                        int value = p.x() - p.y() * m;
+                        x *= value;
+                    }
+                }
+
+                int y = 1;
+                if (row.isEmpty()) {
+                    y = 0;
+                } else {
+                    for (Pair p : row) {
+                        int value = q(p.x(), p.y(), m, number);
+                        y *= value;
+                    }
+                }
+
                 if (Math.sqrt(y) == Math.floor(Math.sqrt(y))) {
                     int gcd = gcd(Math.abs(x - y), number);
                     if (gcd != 1 && gcd != number) {
