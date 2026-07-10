@@ -64,24 +64,22 @@ public class NumberFieldSieve {
         }
 
         if (!indices.isEmpty() && !exponentRows.isEmpty()) {
-            for (var row : getLinearDependentRows(indices, exponentRows)) {
+            for (var linearDependentRow : getLinearDependentRows(indices, exponentRows)) {
                 int baseProduct = 1;
-                if (row.isEmpty()) {
+                if (linearDependentRow.isEmpty()) {
                     baseProduct = 0;
                 } else {
-                    for (Pair pair : row) {
-                        int value = pair.x() - pair.y() * m;
-                        baseProduct *= value;
+                    for (Pair pair : linearDependentRow) {
+                        baseProduct *= pair.x() - pair.y() * m;
                     }
                 }
 
                 int sieveProduct = 1;
-                if (row.isEmpty()) {
+                if (linearDependentRow.isEmpty()) {
                     sieveProduct = 0;
                 } else {
-                    for (Pair pair : row) {
-                        int value = q(pair.x(), pair.y(), m, number);
-                        sieveProduct *= value;
+                    for (Pair pair : linearDependentRow) {
+                        sieveProduct *= q(pair.x(), pair.y(), m, number);
                     }
                 }
 
