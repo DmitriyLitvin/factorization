@@ -105,35 +105,35 @@ public class NumberFieldSieve {
         return gcd(divisor, dividend % divisor);
     }
 
-    public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponents) {
+    public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponentRows) {
         List<List<Pair>> dependentRowIndices = new ArrayList<>();
-        int rowSize = exponents.size();
+        int rowSize = exponentRows.size();
         int row = 0;
         while (row < rowSize) {
             dependentRowIndices.add(new ArrayList<>(List.of(indices.get(row))));
             row++;
         }
 
-        int columnSize = exponents.get(0).size();
+        int columnSize = exponentRows.get(0).size();
         for (int i = 0; i < rowSize && i < columnSize; i++) {
-            int mainElement = exponents.get(i).get(i);
+            int mainElement = exponentRows.get(i).get(i);
             if (mainElement == 0) {
                 int l = 1;
                 while (mainElement == 0 && l < rowSize) {
-                    mainElement = exponents.get(l).get(i);
+                    mainElement = exponentRows.get(l).get(i);
                     l++;
                 }
                 if (mainElement != 0) {
-                    exchangeRows(exponents, i, l - 1);
+                    exchangeRows(exponentRows, i, l - 1);
                     exchangeRows(dependentRowIndices, i, l - 1);
                     exchange(indices, i, l - 1);
                 }
             }
             if (mainElement != 0) {
                 for (int j = 0; j < rowSize; j++) {
-                    if (i != j && exponents.get(j).get(i) != 0) {
+                    if (i != j && exponentRows.get(j).get(i) != 0) {
                         for (int k = 0; k < columnSize; k++) {
-                            exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
+                            exponentRows.get(j).set(k, mod(exponentRows.get(j).get(k) - exponentRows.get(i).get(k), 2));
                         }
                         dependentRowIndices.get(j).add(indices.get(i));
                     }
@@ -141,7 +141,21 @@ public class NumberFieldSieve {
             }
         }
 
-        return IntStream.range(0, exponents.size()).filter(i -> exponents.get(i).stream().allMatch(r -> r == 0)).mapToObj(dependentRowIndices::get).toList();
+        List<List<Pair>> zeroExponentRows = new ArrayList<>();
+        for (int i = 0; i < exponentRows.size(); i++) {
+            boolean isLinearDependent = true;
+            for (Integer exponent : exponentRows.get(i)) {
+                if (exponent != 0) {
+                    isLinearDependent = false;
+                    break;
+                }
+            }
+            if (isLinearDependent) {
+                zeroExponentRows.add(dependentRowIndices.get(i));
+            }
+        }
+
+        return zeroExponentRows;
     }
 
     public <T> void exchangeRows(List<List<T>> matrix, int i, int j) {
