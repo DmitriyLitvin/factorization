@@ -11,7 +11,7 @@ public class NumberFieldSieve {
     public static void main(String[] args) {
         NumberFieldSieve numberFieldSieve = new NumberFieldSieve();
         System.out.println(numberFieldSieve.factorize(126));
-        System.out.println(numberFieldSieve.factorize(1573344559));
+        System.out.println(numberFieldSieve.factorize(2147483646));
     }
 
     public int mod(int number, int mod) {
@@ -19,12 +19,12 @@ public class NumberFieldSieve {
     }
 
     public int f(int x, int m, int number) {
-        return (int) Math.pow(x, 2) + 2 * m * x + (int) Math.pow(m, 2) - number;
+        return x * x + 2 * m * x + m * m - number;
     }
 
 
     public int q(int a, int b, int m, int number) {
-        return (int) Math.pow(a, 2) + 2 * m * a * b + (int) Math.pow(b, 2) * ((int) Math.pow(m, 2) - number);
+        return a * a + 2 * m * a * b + b * b * (m * m - number);
     }
 
     public int factorize(int number) {
@@ -47,15 +47,14 @@ public class NumberFieldSieve {
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int residue = j - i * m;
-                int polyValue = q(j, i, m, number);
-                if (isFactorized(residue, smoothNumbers) && isFactorized(polyValue, smoothNumbers)) {
+                int q = q(j, i, m, number);
+                if (isFactorized(residue, smoothNumbers) && isFactorized( q, smoothNumbers)) {
                     indices.add(new Pair(j, i));
-
                     List<Integer> exponentRow = new ArrayList<>();
                     for (Integer exponent : getExponents(residue, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
-                    for (Integer exponent : getExponents(polyValue, smoothNumbers)) {
+                    for (Integer exponent : getExponents( q, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
                     exponentRows.add(exponentRow);
