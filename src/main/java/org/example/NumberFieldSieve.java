@@ -1,8 +1,6 @@
 package org.example;
 
 import java.util.*;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.lang.Math.*;
 
@@ -12,6 +10,8 @@ public class NumberFieldSieve {
         NumberFieldSieve numberFieldSieve = new NumberFieldSieve();
         System.out.println(numberFieldSieve.factorize(126));
         System.out.println(numberFieldSieve.factorize(2147483646));
+
+
     }
 
     public int mod(int number, int mod) {
@@ -23,7 +23,7 @@ public class NumberFieldSieve {
     }
 
 
-    public int q(int a, int b, int m, int number) {
+    public int getDiscriminant(int a, int b, int m, int number) {
         return a * a + 2 * m * a * b + b * b * (m * m - number);
     }
 
@@ -47,14 +47,14 @@ public class NumberFieldSieve {
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * m - 50; j < i * m + 50; j++) {
                 int residue = j - i * m;
-                int q = q(j, i, m, number);
-                if (isFactorized(residue, smoothNumbers) && isFactorized( q, smoothNumbers)) {
+                int discriminant = getDiscriminant(j, i, m, number);
+                if (isFactorized(residue, smoothNumbers) && isFactorized( discriminant, smoothNumbers)) {
                     indices.add(new Pair(j, i));
                     List<Integer> exponentRow = new ArrayList<>();
                     for (Integer exponent : getExponents(residue, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
-                    for (Integer exponent : getExponents( q, smoothNumbers)) {
+                    for (Integer exponent : getExponents( discriminant, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
                     exponentRows.add(exponentRow);
@@ -78,7 +78,7 @@ public class NumberFieldSieve {
                     sieveProduct = 0;
                 } else {
                     for (Pair pair : linearDependentRow) {
-                        sieveProduct *= q(pair.x(), pair.y(), m, number);
+                        sieveProduct *= getDiscriminant(pair.x(), pair.y(), m, number);
                     }
                 }
 
