@@ -18,24 +18,24 @@ public class NumberFieldSieve {
         return ((number % mod) + mod) % mod;
     }
 
-    public int f(int x, int m, int number) {
-        return x * x + 2 * m * x + m * m - number;
+    public int getSieveValue(int x, int  sieveBase, int number) {
+        return x * x + 2 *  sieveBase * x +  sieveBase *  sieveBase - number;
     }
 
 
-    public int getDiscriminant(int a, int b, int m, int number) {
-        return a * a + 2 * m * a * b + b * b * (m * m - number);
+    public int getDiscriminant(int a, int b, int sieveBase, int number) {
+        return a * a + 2 * sieveBase * a * b + b * b * (sieveBase * sieveBase - number);
     }
 
     public int factorize(int number) {
-        int m = (int) Math.floor(sqrt(number));
+        int sieveBase = (int) Math.floor(sqrt(number));
         int limit = 5 * (int) Math.pow(log(number), 2);
 
         List<Integer> smoothNumbers = new ArrayList<>();
         List<Integer> primeNumbers = getPrimeNumbers(limit).stream().sorted().toList();
         for (Integer primeNumber : primeNumbers) {
             for (int i = 1; i <= primeNumber; i++) {
-                if (mod(f(i, m, number), primeNumber) == 0) {
+                if (mod(getSieveValue(i, sieveBase, number), primeNumber) == 0) {
                     smoothNumbers.add(primeNumber);
                     break;
                 }
@@ -45,16 +45,16 @@ public class NumberFieldSieve {
         List<Pair> indices = new LinkedList<>();
         List<List<Integer>> exponentRows = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
-            for (int j = i * m - 50; j < i * m + 50; j++) {
-                int residue = j - i * m;
-                int discriminant = getDiscriminant(j, i, m, number);
-                if (isFactorized(residue, smoothNumbers) && isFactorized( discriminant, smoothNumbers)) {
+            for (int j = i * sieveBase - 50; j < i * sieveBase + 50; j++) {
+                int residue = j - i * sieveBase;
+                int discriminant = getDiscriminant(j, i, sieveBase, number);
+                if (isFactorized(residue, smoothNumbers) && isFactorized(discriminant, smoothNumbers)) {
                     indices.add(new Pair(j, i));
                     List<Integer> exponentRow = new ArrayList<>();
                     for (Integer exponent : getExponents(residue, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
-                    for (Integer exponent : getExponents( discriminant, smoothNumbers)) {
+                    for (Integer exponent : getExponents(discriminant, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
                     }
                     exponentRows.add(exponentRow);
@@ -69,7 +69,7 @@ public class NumberFieldSieve {
                     baseProduct = 0;
                 } else {
                     for (Pair pair : linearDependentRow) {
-                        baseProduct *= pair.x() - pair.y() * m;
+                        baseProduct *= pair.x() - pair.y() * sieveBase;
                     }
                 }
 
@@ -78,7 +78,7 @@ public class NumberFieldSieve {
                     sieveProduct = 0;
                 } else {
                     for (Pair pair : linearDependentRow) {
-                        sieveProduct *= getDiscriminant(pair.x(), pair.y(), m, number);
+                        sieveProduct *= getDiscriminant(pair.x(), pair.y(), sieveBase, number);
                     }
                 }
 
