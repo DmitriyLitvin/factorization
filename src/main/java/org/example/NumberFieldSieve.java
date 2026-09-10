@@ -18,13 +18,14 @@ public class NumberFieldSieve {
         return ((number % mod) + mod) % mod;
     }
 
-    public int getSieveValue(int x, int  sieveBase, int number) {
-        return x * x + 2 *  sieveBase * x +  sieveBase *  sieveBase - number;
+    public int getSieveValue(int offset, int sieveBase, int number) {
+        int sum = offset + sieveBase;
+        return sum * sum - number;
     }
 
 
-    public int getDiscriminant(int x, int y, int sieveBase, int number) {
-        return x * x + 2 * sieveBase * x * y + y * y * (sieveBase * sieveBase - number);
+    public int getDiscriminant(int offset, int multiplier, int sieveBase, int number) {
+        return (offset + sieveBase * multiplier) * (offset + sieveBase * multiplier) - number * (multiplier * multiplier);
     }
 
     public int factorize(int number) {
@@ -42,14 +43,14 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Pair> indices = new LinkedList<>();
+        List<Pair> pairs = new LinkedList<>();
         List<List<Integer>> exponentRows = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * sieveBase - 50; j < i * sieveBase + 50; j++) {
                 int residue = j - i * sieveBase;
                 int discriminant = getDiscriminant(j, i, sieveBase, number);
                 if (isFactorized(residue, smoothNumbers) && isFactorized(discriminant, smoothNumbers)) {
-                    indices.add(new Pair(j, i));
+                    pairs.add(new Pair(j, i));
                     List<Integer> exponentRow = new ArrayList<>();
                     for (Integer exponent : getExponents(residue, smoothNumbers)) {
                         exponentRow.add(exponent % 2);
@@ -62,30 +63,21 @@ public class NumberFieldSieve {
             }
         }
 
-        if (!indices.isEmpty() && !exponentRows.isEmpty()) {
-            for (var linearDependentRow : getLinearDependentRows(indices, exponentRows)) {
+        if (!pairs.isEmpty() && !exponentRows.isEmpty()) {
+            for (var linearDependentRow : getLinearDependentRows(pairs, exponentRows)) {
                 int baseProduct = 1;
-                if (linearDependentRow.isEmpty()) {
-                    baseProduct = 0;
-                } else {
-                    for (Pair pair : linearDependentRow) {
-                        baseProduct *= pair.x() - pair.y() * sieveBase;
-                    }
-                }
-
                 int sieveProduct = 1;
-                if (linearDependentRow.isEmpty()) {
-                    sieveProduct = 0;
-                } else {
+                if (!linearDependentRow.isEmpty()) {
                     for (Pair pair : linearDependentRow) {
-                        sieveProduct *= getDiscriminant(pair.x(), pair.y(), sieveBase, number);
+                        baseProduct *= pair.row() - pair.column() * sieveBase;
+                        sieveProduct *= getDiscriminant(pair.row(), pair.column(), sieveBase, number);
                     }
-                }
 
-                if (Math.sqrt(sieveProduct) == Math.floor(Math.sqrt(sieveProduct))) {
-                    int gcd = gcd(Math.abs(baseProduct - sieveProduct), number);
-                    if (gcd != 1 && gcd != number) {
-                        return gcd;
+                    if (Math.sqrt(sieveProduct) == Math.floor(Math.sqrt(sieveProduct))) {
+                        int gcd = gcd(Math.abs(baseProduct - sieveProduct), number);
+                        if (gcd != 1 && gcd != number) {
+                            return gcd;
+                        }
                     }
                 }
             }
@@ -102,12 +94,12 @@ public class NumberFieldSieve {
         return gcd(divisor, dividend % divisor);
     }
 
-    public List<List<Pair>> getLinearDependentRows(List<Pair> indices, List<List<Integer>> exponentRows) {
+    public List<List<Pair>> getLinearDependentRows(List<Pair> pairs, List<List<Integer>> exponentRows) {
         List<List<Pair>> dependentRowIndices = new ArrayList<>();
         int rowSize = exponentRows.size();
         int row = 0;
         while (row < rowSize) {
-            dependentRowIndices.add(new ArrayList<>(List.of(indices.get(row))));
+            dependentRowIndices.add(new ArrayList<>(List.of(pairs.get(row))));
             row++;
         }
 
@@ -123,7 +115,7 @@ public class NumberFieldSieve {
                 if (mainElement != 0) {
                     exchangeRows(exponentRows, i, l - 1);
                     exchangeRows(dependentRowIndices, i, l - 1);
-                    exchange(indices, i, l - 1);
+                    exchange(pairs, i, l - 1);
                 }
             }
             if (mainElement != 0) {
@@ -132,7 +124,7 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponentRows.get(j).set(k, mod(exponentRows.get(j).get(k) - exponentRows.get(i).get(k), 2));
                         }
-                        dependentRowIndices.get(j).add(indices.get(i));
+                        dependentRowIndices.get(j).add(pairs.get(i));
                     }
                 }
             }

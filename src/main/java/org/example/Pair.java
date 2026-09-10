@@ -1,5 +1,5 @@
 package org.example;
 
-public record Pair (int x, int y) {
+public record Pair (int row, int column) {
 
 }
