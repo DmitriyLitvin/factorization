@@ -23,8 +23,8 @@ public class NumberFieldSieve {
     }
 
 
-    public int getDiscriminant(int a, int b, int sieveBase, int number) {
-        return a * a + 2 * sieveBase * a * b + b * b * (sieveBase * sieveBase - number);
+    public int getDiscriminant(int x, int y, int sieveBase, int number) {
+        return x * x + 2 * sieveBase * x * y + y * y * (sieveBase * sieveBase - number);
     }
 
     public int factorize(int number) {
