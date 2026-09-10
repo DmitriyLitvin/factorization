@@ -1,6 +1,8 @@
 package org.example;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static java.lang.Math.*;
 
@@ -64,9 +66,10 @@ public class NumberFieldSieve {
         }
 
         if (!pairs.isEmpty() && !exponentRows.isEmpty()) {
-            for (var linearDependentRow : getLinearDependentRows(pairs, exponentRows)) {
+            for (List<Pair> linearDependentRow : getLinearDependentRows(pairs, exponentRows)) {
                 int baseProduct = 1;
                 int sieveProduct = 1;
+
                 if (!linearDependentRow.isEmpty()) {
                     for (Pair pair : linearDependentRow) {
                         baseProduct *= pair.row() - pair.column() * sieveBase;
