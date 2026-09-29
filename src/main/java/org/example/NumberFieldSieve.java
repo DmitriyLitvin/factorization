@@ -44,7 +44,7 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Point> points = new LinkedList<>();
+        List<Pair> pairs = new LinkedList<>();
         List<List<Integer>> exponentRows = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * sieveBase - 50; j < i * sieveBase + 50; j++) {
@@ -59,20 +59,20 @@ public class NumberFieldSieve {
                         exponentRow.add(exponent % 2);
                     }
                     exponentRows.add(exponentRow);
-                    points.add(new Point(j, i));
+                    pairs.add(new Pair(j, i));
                 }
             }
         }
 
-        if (!points.isEmpty() && !exponentRows.isEmpty()) {
-            for (List<Point> linearDependentRow : getLinearDependentRows(points, exponentRows)) {
+        if (!pairs.isEmpty() && !exponentRows.isEmpty()) {
+            for (List<Pair> linearDependentRow : getLinearDependentRows(pairs, exponentRows)) {
                 int baseProduct = 1;
                 int sieveProduct = 1;
 
                 if (!linearDependentRow.isEmpty()) {
-                    for (Point point : linearDependentRow) {
-                        baseProduct *= point.x() - point.y() * sieveBase;
-                        sieveProduct *= getDiscriminant(point.x(), point.y(), sieveBase, number);
+                    for (Pair pair : linearDependentRow) {
+                        baseProduct *= pair.key() - pair.value() * sieveBase;
+                        sieveProduct *= getDiscriminant(pair.key(), pair.value(), sieveBase, number);
                     }
 
                     if (Math.sqrt(sieveProduct) == Math.floor(Math.sqrt(sieveProduct))) {
@@ -96,12 +96,12 @@ public class NumberFieldSieve {
         return gcd(divisor, dividend % divisor);
     }
 
-    public List<List<Point>> getLinearDependentRows(List<Point> points, List<List<Integer>> exponentRows) {
-        List<List<Point>> dependentRowIndices = new ArrayList<>();
+    public List<List<Pair>> getLinearDependentRows(List<Pair> pairs, List<List<Integer>> exponentRows) {
+        List<List<Pair>> dependentRowIndices = new ArrayList<>();
         int rowSize = exponentRows.size();
         int row = 0;
         while (row < rowSize) {
-            dependentRowIndices.add(new ArrayList<>(List.of(points.get(row))));
+            dependentRowIndices.add(new ArrayList<>(List.of(pairs.get(row))));
             row++;
         }
 
@@ -117,7 +117,7 @@ public class NumberFieldSieve {
                 if (mainElement != 0) {
                     exchangeRows(exponentRows, i, l - 1);
                     exchangeRows(dependentRowIndices, i, l - 1);
-                    exchange(points, i, l - 1);
+                    exchange(pairs, i, l - 1);
                 }
             }
             if (mainElement != 0) {
@@ -126,13 +126,13 @@ public class NumberFieldSieve {
                         for (int k = 0; k < columnSize; k++) {
                             exponentRows.get(j).set(k, mod(exponentRows.get(j).get(k) - exponentRows.get(i).get(k), 2));
                         }
-                        dependentRowIndices.get(j).add(points.get(i));
+                        dependentRowIndices.get(j).add(pairs.get(i));
                     }
                 }
             }
         }
 
-        List<List<Point>> zeroExponentRows = new ArrayList<>();
+        List<List<Pair>> zeroExponentRows = new ArrayList<>();
         for (int i = 0; i < exponentRows.size(); i++) {
             boolean isLinearDependent = true;
             for (Integer exponent : exponentRows.get(i)) {
