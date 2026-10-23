@@ -44,7 +44,8 @@ public class NumberFieldSieve {
             }
         }
 
-        List<Pair> pairs = new LinkedList<>();
+        List<Integer> rows = new LinkedList<>();
+        List<Integer> columns = new LinkedList<>();
         List<List<Integer>> exponentRows = new LinkedList<>();
         for (int i = 0; i < 2 * smoothNumbers.size(); i++) {
             for (int j = i * sieveBase - 50; j < i * sieveBase + 50; j++) {
@@ -59,20 +60,29 @@ public class NumberFieldSieve {
                         exponentRow.add(exponent % 2);
                     }
                     exponentRows.add(exponentRow);
-                    pairs.add(new Pair(j, i));
+                    rows.add(j);
+                    columns.add(i);
                 }
             }
         }
 
-        if (!pairs.isEmpty() && !exponentRows.isEmpty()) {
-            for (List<Pair> linearDependentRow : getLinearDependentRows(pairs, exponentRows)) {
+        if (!rows.isEmpty() && !columns.isEmpty() && !exponentRows.isEmpty()) {
+            Iterator<List<Integer>> linearDependentRows = getLinearDependentIndices(rows, exponentRows).iterator();
+            Iterator<List<Integer>> linearDependentColumns = getLinearDependentIndices(columns, exponentRows).iterator();
+
+            while (linearDependentRows.hasNext() && linearDependentColumns.hasNext()) {
                 int baseProduct = 1;
                 int sieveProduct = 1;
 
-                if (!linearDependentRow.isEmpty()) {
-                    for (Pair pair : linearDependentRow) {
-                        baseProduct *= pair.key() - pair.value() * sieveBase;
-                        sieveProduct *= getDiscriminant(pair.key(), pair.value(), sieveBase, number);
+                Iterator<Integer> linearDependentRow = linearDependentRows.next().iterator();
+                Iterator<Integer> linearDependentColumn = linearDependentColumns.next().iterator();
+                if (linearDependentRow.hasNext() &&  linearDependentColumn.hasNext()) {
+
+                    while (linearDependentRow.hasNext() && linearDependentColumn.hasNext()) {
+                        int row = linearDependentRow.next();
+                        int column = linearDependentColumn.next();
+                        baseProduct *= row - column * sieveBase;
+                        sieveProduct *= getDiscriminant(row , column, sieveBase, number);
                     }
 
                     if (Math.sqrt(sieveProduct) == Math.floor(Math.sqrt(sieveProduct))) {
@@ -82,6 +92,7 @@ public class NumberFieldSieve {
                         }
                     }
                 }
+
             }
         }
 
@@ -96,8 +107,8 @@ public class NumberFieldSieve {
         return gcd(divisor, dividend % divisor);
     }
 
-    public List<List<Pair>> getLinearDependentRows(List<Pair> pairs, List<List<Integer>> exponentRows) {
-        List<List<Pair>> dependentRowIndices = new ArrayList<>();
+    public List<List<Integer>> getLinearDependentIndices(List<Integer> pairs, List<List<Integer>> exponentRows) {
+        List<List<Integer>> dependentRowIndices = new ArrayList<>();
         int rowSize = exponentRows.size();
         int row = 0;
         while (row < rowSize) {
@@ -132,7 +143,7 @@ public class NumberFieldSieve {
             }
         }
 
-        List<List<Pair>> zeroExponentRows = new ArrayList<>();
+        List<List<Integer>> zeroExponentRows = new ArrayList<>();
         for (int i = 0; i < exponentRows.size(); i++) {
             boolean isLinearDependent = true;
             for (Integer exponent : exponentRows.get(i)) {
