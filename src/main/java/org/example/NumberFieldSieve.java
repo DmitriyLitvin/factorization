@@ -107,46 +107,46 @@ public class NumberFieldSieve {
         return gcd(divisor, dividend % divisor);
     }
 
-    public List<List<Integer>> getLinearDependentIndices(List<Integer> pairs, List<List<Integer>> exponentRows) {
+    public List<List<Integer>> getLinearDependentIndices(List<Integer> indices, List<List<Integer>> exponents) {
         List<List<Integer>> dependentRowIndices = new ArrayList<>();
-        int rowSize = exponentRows.size();
+        int rowSize = exponents.size();
         int row = 0;
         while (row < rowSize) {
-            dependentRowIndices.add(new ArrayList<>(List.of(pairs.get(row))));
+            dependentRowIndices.add(new ArrayList<>(List.of(indices.get(row))));
             row++;
         }
 
-        int columnSize = exponentRows.get(0).size();
+        int columnSize = exponents.get(0).size();
         for (int i = 0; i < rowSize && i < columnSize; i++) {
-            int mainElement = exponentRows.get(i).get(i);
+            int mainElement = exponents.get(i).get(i);
             if (mainElement == 0) {
                 int l = 1;
                 while (mainElement == 0 && l < rowSize) {
-                    mainElement = exponentRows.get(l).get(i);
+                    mainElement = exponents.get(l).get(i);
                     l++;
                 }
                 if (mainElement != 0) {
-                    exchangeRows(exponentRows, i, l - 1);
+                    exchangeRows(exponents, i, l - 1);
                     exchangeRows(dependentRowIndices, i, l - 1);
-                    exchange(pairs, i, l - 1);
+                    exchange(indices, i, l - 1);
                 }
             }
             if (mainElement != 0) {
                 for (int j = 0; j < rowSize; j++) {
-                    if (i != j && exponentRows.get(j).get(i) != 0) {
+                    if (i != j && exponents.get(j).get(i) != 0) {
                         for (int k = 0; k < columnSize; k++) {
-                            exponentRows.get(j).set(k, mod(exponentRows.get(j).get(k) - exponentRows.get(i).get(k), 2));
+                            exponents.get(j).set(k, mod(exponents.get(j).get(k) - exponents.get(i).get(k), 2));
                         }
-                        dependentRowIndices.get(j).add(pairs.get(i));
+                        dependentRowIndices.get(j).add(indices.get(i));
                     }
                 }
             }
         }
 
         List<List<Integer>> zeroExponentRows = new ArrayList<>();
-        for (int i = 0; i < exponentRows.size(); i++) {
+        for (int i = 0; i < exponents.size(); i++) {
             boolean isLinearDependent = true;
-            for (Integer exponent : exponentRows.get(i)) {
+            for (Integer exponent : exponents.get(i)) {
                 if (exponent != 0) {
                     isLinearDependent = false;
                     break;
